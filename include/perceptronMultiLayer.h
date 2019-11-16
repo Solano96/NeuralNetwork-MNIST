@@ -1,5 +1,8 @@
-
 #include <vector>
+#include <numeric>
+#include <algorithm>
+
+using namespace std;
 
 class Network(){
 private:
@@ -13,7 +16,9 @@ public:
 
 	vector<double> feedForward(vector<double> a);
 
-	void SGD(vector<vector<double> >, int epochs, int mini_batch_size, double eta);
+	void SGD(vector<vector<double> > x_train, vector<int> y_train, int epochs, int mini_batch_size, double eta);
+
+	void update_mini_batch(vector<vector<double> > mini_batch, double eta);
 
 
 };
