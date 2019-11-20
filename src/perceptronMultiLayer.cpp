@@ -1,33 +1,52 @@
 #include "perceptronMultiLayer.h"
 
-Network::Network(vector<double> sizes_){
+Network::Network(vector<int> sizes_){
 	num_layers = sizes_.size();
 	sizes = sizes_;
 
-	// Initialize biases
-	for(int i = 1; i < num_layers; i++){
-		vector<double> bias_layer;
-		for(int j = 0; j < sizes[i]; j++){
-			bias_layer.push_back(0.0);
-		}
-		biases.push_back(bias_layer);
-	}
+	biases_fill(biases, num_layers, sizes);
 
 	default_random_engine generator;
 	normal_distribution<double> distribution(0.0,1.0);
 
-	// Initialize weights
-	for(int i = 1; i < num_layers; i++){
-		vector<double> layers_weights;
-		for(int j = 0; j < sizes[i]; j++){
-			vector<vector<double> > node_weights;
-			for(int k = 0; k < size[i-1]; k++){
-				node_weights.push_back(distribution(generator)*10);
-			}
-			layers_weights.push_back(node_weights)
+	weights_fill(weights, num_layers, sizes, true);
+}
+
+void Network::biases_fill(vector<vector<double> > &b, int n_layers, vector<int> &l_sizes){
+	b.clear()
+
+	for(int i = 1; i < n_layers; i++){
+		vector<double> b_layer;
+		for(int j = 0; j < l_sizes[i]; j++){
+			b_layer.push_back(0.0);
 		}
-		weights.push_back(layers_weights);
+		b.push_back(bias_layer);
 	}
+}
+
+void Network::weights_fill(vector<vector<vector<double> > > &w, int n_layers, vector<int> &l_sizes, bool random_w){
+	w.clear();
+
+	default_random_engine generator;
+	normal_distribution<double> distribution(0.0,1.0);
+
+	for(int i = 1; i < n_layers; i++){
+		vector<double> layers_w;
+		for(int j = 0; j < l_sizes[i]; j++){
+			vector<vector<double> > node_w;
+			for(int k = 0; k < l_size[i-1]; k++){
+				if(random_w){
+					node_w.push_back(distribution(generator)*10);
+				}
+				else{
+					node_w.push_back(0.0);
+				}
+			}
+			layers_w.push_back(node_w)
+		}
+		w.push_back(layers_w);
+	}
+
 }
 
 vector<double> Network::feedForward(vector<double> input){
@@ -46,7 +65,7 @@ vector<double> Network::feedForward(vector<double> input){
 	return a;
 }
 
-void Network::SGD(vector<vector<double> > x_train, vector<int> y_train, int epochs, int mini_batch_size, double eta){
+void Network::SGD(vector<vector<double> > &x_train, vector<int> &y_train, int epochs, int mini_batch_size, double eta){
 
 	vector<int> index;
 	int train_size = y_train.size();
@@ -59,13 +78,28 @@ void Network::SGD(vector<vector<double> > x_train, vector<int> y_train, int epoc
 		random_shuffle(index.begin(), index.end());
 
 		vector<vector<double> > x_mini_batch;
-		vector<vector<double> > y_mini_batch;
+		vector<int> y_mini_batch;
 
 		for(int j = 0; j < mini_batch_size; j++){
 			x_mini_batch.push_back(x_train[index[j]]);
 			y_mini_batch.push_back(y_train[index[j]]);
 		}
 
+		update_mini_batch(x_mini_batch, y_mini_batch, eta);
 
+		cout << "Epoch " << i << "/" << epochs << endl;
+	}
+}
+
+void Network::update_mini_batch(vector<vector<double> > &x_mini_batch, vector<int> &y_mini_batch, double eta){
+
+	vector<vector<double> > nabla_b;
+	vector<vector<vector<double> > > nabla_w;
+
+	biases_fill(nabla_b, num_layers, sizes);
+	weights_fill(nabla_w, num_layers, sizes, false);
+
+	for(int i = 0; i < x_mini_batch.size(); i++){
+		
 	}
 }
