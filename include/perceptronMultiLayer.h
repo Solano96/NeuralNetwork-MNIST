@@ -16,13 +16,8 @@ private:
 
 public:
 	Network(vector<int> sizes);
-
 	vector<double> feedForward(vector<double> a);
-
 	void SGD(vector<vector<double> > &x_train, vector<int> &y_train, int epochs, int mini_batch_size, double eta);
-
 	void update_mini_batch(vector<vector<double> > &x_mini_batch, vector<int> &y_mini_batch, double eta);
-
-	void backprop()
-
+	void backprop(vector<double> &x, int &y);
 };

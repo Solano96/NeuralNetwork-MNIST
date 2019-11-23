@@ -1,15 +1,15 @@
 #include "perceptronMultiLayer.h"
 
 Network::Network(vector<int> sizes_){
-	num_layers = sizes_.size();
-	sizes = sizes_;
+	this->num_layers = sizes_.size();
+	this->sizes = sizes_;
 
-	biases_fill(biases, num_layers, sizes);
+	biases_fill(this->biases, this->num_layers, this->sizes);
 
 	default_random_engine generator;
 	normal_distribution<double> distribution(0.0,1.0);
 
-	weights_fill(weights, num_layers, sizes, true);
+	weights_fill(this->weights, this->num_layers, this->sizes, true);
 }
 
 void Network::biases_fill(vector<vector<double> > &b, int n_layers, vector<int> &l_sizes){
@@ -52,11 +52,11 @@ void Network::weights_fill(vector<vector<vector<double> > > &w, int n_layers, ve
 vector<double> Network::feedForward(vector<double> input){
 	vector<double> a = input;
 
-	for(int i = 0; i < num_layers-1; i++){
+	for(int i = 0; i < this->num_layers-1; i++){
 		vector<double> layer_outputs;
-		for(int j = 0; j < sizes[i]; j++){
-			double dot_product = inner_product(a.begin(), a.end(), weights[i][j].begin(), 0);
-			double node_output = sigmoid(dot_product + biases[i][j]);
+		for(int j = 0; j < this->sizes[i]; j++){
+			double dot_product = inner_product(a.begin(), a.end(), this->weights[i][j].begin(), 0);
+			double node_output = sigmoid(dot_product + this->biases[i][j]);
 			layers_outputs.push_back(node_output);
 		}
 		a = layer_outputs;
@@ -100,6 +100,36 @@ void Network::update_mini_batch(vector<vector<double> > &x_mini_batch, vector<in
 	weights_fill(nabla_w, num_layers, sizes, false);
 
 	for(int i = 0; i < x_mini_batch.size(); i++){
-		
+
 	}
+}
+
+
+void Network::backprop(vector<double> &x, int &y){
+	biases_fill(nabla_b, num_layers, sizes);
+	weights_fill(nabla_w, num_layers, sizes, false);
+
+	vector<double> activation = x;
+	vector<vector<double> >  activations;
+
+	activations.push_back(activation);
+
+	vector<vector<double> > zs;
+
+	for(int i = 0; i < this->num_layers; i++){
+		vector<double> z;
+		vector<double> z_sigmoid;
+
+		for(int j = 0; j < this->sizes[i]; j++){
+			double dot_product = inner_product(activation.begin(), activation.end(), this->weights[i][j].begin(), 0);
+			double out = dot_product + this->biases[i][j];
+			z.push_back(out);
+			z_sigmoid.push_back(sigmoid(out));
+		}
+
+		zs.push_back(z);
+		activation = z_sigmoid;
+		activations.push_back(activation);
+	}
+
 }
