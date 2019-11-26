@@ -1,4 +1,5 @@
 #include "perceptronMultiLayer.h"
+#include "utils.h"
 
 Network::Network(vector<int> sizes_){
 	this->num_layers = sizes_.size();
@@ -111,23 +112,29 @@ void Network::update_mini_batch(vector<vector<double> > &x_mini_batch, vector<in
 	vector<vector<double> > nabla_b;
 	vector<vector<vector<double> > > nabla_w;
 
-	biases_fill(nabla_b, num_layers, sizes);
-	weights_fill(nabla_w, num_layers, sizes, false);
+	biases_fill(nabla_b, this->num_layers, this->sizes);
+	weights_fill(nabla_w, this->num_layers, this->sizes, false);
 
 	int mini_batch_size = x_mini_batch.size();
 
 	for(int i = 0; i < mini_batch_size; i++){
+		vector<vector<double> > delta_nabla_b;
+		vector<vector<vector<double> > > delta_nabla_w;
+		backprop(x_mini_batch[i], y_mini_batch[i], delta_nabla_b, delta_nabla_w);
+
+		nabla_b = nabla_b + delta_nabla_b;
+
+		for(int j = 0; j < this->num_layers; j++){
+			nabla_w[j] = nabla_w[j] + delta_nabla_w[j];
+		}
 
 	}
 }
 
-// SIN ACABAR
-void Network::backprop(vector<double> &x, int &y){
-	vector<vector<double> > nabla_b;
-	vector<vector<vector<double> > > nabla_w;
 
-	biases_fill(nabla_b, num_layers, sizes);
-	weights_fill(nabla_w, num_layers, sizes, false);
+void Network::backprop(vector<double> &x, int &y, vector<vector<double> > &nabla_b, vector<vector<vector<double> > > &nabla_w){
+	biases_fill(nabla_b, this->num_layers, this->sizes);
+	weights_fill(nabla_w, this->num_layers, this->sizes, false);
 
 	vector<double> activation = x;
 	vector<vector<double> >  activations;
@@ -152,7 +159,9 @@ void Network::backprop(vector<double> &x, int &y){
 		activations.push_back(activation);
 	}
 
-	vector<double> partial_derivatives = cost_derivative(activations[activations.size()-1], y);
+	int activations_size = activations.size();
+
+	vector<double> partial_derivatives = cost_derivative(activations[activations_size-1], y);
 	vector<double> sigmoid_prime_vector = sigmoid_prime(zs[zs.size()-1]);
 
 	int delta_size = sigmoid_prime_vector.size();
@@ -162,7 +171,37 @@ void Network::backprop(vector<double> &x, int &y){
 		delta.push_back(partial_derivatives[i]*sigmoid_prime_vector[i]);
 	}
 
-	nabla_b[nabla_b.size()-1] = delta;
+	nabla_b[num_layers-1] = delta;
+
+	for(int i = 0; i < this->sizes[num_layers-1]; i++){
+		for(int j = 0; j < this->sizes[num_layers-2]; j++){
+			nabla_w[num_layers-1][i][j] = delta[i]*activations[activations.size()-2][j];
+		}
+	}
+
+	for(int i = 2; i < num_layers; i++){
+		vector<double> z = zs[num_layers-i];
+		vector<double> sp = sigmoid_prime(z);
+
+		vector<double> temp_delta;
+
+		for(int j = 0; j < this->sizes[num_layers-i]; j++){
+			double dot_product = 0;
+			for(int k = 0; k < this->sizes[num_layers-i+1]; k++){
+				dot_product += delta[k]*this->weights[num_layers-i+1][k][j];
+			}
+			temp_delta.push_back(dot_product*sp[j]);
+		}
+
+		delta = temp_delta;
+		nabla_b[num_layers-i] = delta;
+
+		for(int j = 0; j < this->sizes[num_layers-i]; j++){
+			for(int k = 0; k < this->sizes[num_layers-i-1]; k++){
+				nabla_w[num_layers-i][j][k] = delta[j]*activations[num_layers-i-1][k];
+			}
+		}
+	}
 
 }
 
