@@ -9,9 +9,6 @@
 #ifndef _READMNIST_H_
 #define _READMNIST_H_
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
 #include <armadillo>
 #include <math.h>
 #include <iostream>
@@ -26,8 +23,6 @@ using namespace arma;
 
 int ReverseInt (int i);
 void read_Mnist(string filename, vector<vector<double> > &vec);
-
-void read_Mnist(string filename, vector<cv::Mat> &vec);
 
 void read_Mnist(string filename, vector<arma::mat> &vec);
 
