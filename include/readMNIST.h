@@ -9,7 +9,6 @@
 #ifndef _READMNIST_H_
 #define _READMNIST_H_
 
-#include <armadillo>
 #include <math.h>
 #include <iostream>
 #include <algorithm>
@@ -17,18 +16,12 @@
 #include <sys/time.h>
 #include <random>
 
-using namespace cv;
 using namespace std;
-using namespace arma;
 
 int ReverseInt (int i);
 void read_Mnist(string filename, vector<vector<double> > &vec);
 
-void read_Mnist(string filename, vector<arma::mat> &vec);
-
 void read_Mnist_Label(string filename, vector<int> &vec);
-
-void read_Mnist_Label(string filename, arma::colvec &vec);
 
 void normalize_dataset(vector<vector<double> > &dataset);
 
