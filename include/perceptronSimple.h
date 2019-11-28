@@ -2,10 +2,6 @@
 #ifndef _PERCEPTRONSIMPLE_H_
 #define _PERCEPTRONSIMPLE_H_
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include <armadillo>
 #include <math.h>
 #include <iostream>
 #include <algorithm>
@@ -13,9 +9,7 @@
 #include <sys/time.h>
 #include <random>
 
-using namespace cv;
 using namespace std;
-using namespace arma;
 
 class SimplePerceptron{
     private:
