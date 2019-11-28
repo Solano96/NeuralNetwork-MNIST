@@ -6,7 +6,7 @@ CXX = g++ -std=c++11
 CXXFLAGS =  -Wall -Wextra -g -I$(SRC) -I$(INC)
 
 main: $(OBJ)/main.o $(OBJ)/activations.o $(OBJ)/utils.o $(OBJ)/readMNIST.o $(OBJ)/perceptronSimple.o $(OBJ)/perceptronMultiLayer.o
-	g++ -fopenmp -o main -O2 $(OBJ)/main.o $(OBJ)/readMNIST.o $(OBJ)/perceptronSimple.o $(OBJ)/perceptronMultiLayer.o $(OBJ)/activations.o $(OBJ)/utils.o `pkg-config --cflags --libs opencv`
+	g++ -fopenmp -o main -O2 $(OBJ)/main.o $(OBJ)/readMNIST.o $(OBJ)/perceptronSimple.o $(OBJ)/perceptronMultiLayer.o $(OBJ)/activations.o $(OBJ)/utils.o
 
 $(OBJ)/main.o: $(SRC)/main.cpp $(INC)/readMNIST.h $(INC)/perceptronSimple.h
 	$(CXX) -c $(CXXFLAGS) -o $(OBJ)/main.o -O2 $(SRC)/main.cpp
