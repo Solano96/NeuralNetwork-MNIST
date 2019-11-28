@@ -177,7 +177,7 @@ void read_Mnist_Label(string filename, arma::colvec &vec)
 void normalize_dataset(vector<vector<double> > &dataset){
     for(int i = 0; i < dataset.size(); i++){
         for(int j = 0; j < dataset[i].size(); j++){
-            dataset[i][j] /= 255;
+            dataset[i][j] /= 255.0;
         }
     }
 }

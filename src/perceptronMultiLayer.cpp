@@ -1,5 +1,110 @@
 #include "perceptronMultiLayer.h"
-#include "utils.h"
+
+template <typename T>
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
+{
+    assert(a.size() == b.size());
+
+    std::vector<T> result;
+    result.reserve(a.size());
+
+    std::transform(a.begin(), a.end(), b.begin(),
+                   std::back_inserter(result), std::plus<T>());
+    return result;
+}
+
+template <typename T>
+std::vector<std::vector<T> > operator+(const std::vector<std::vector<T> >& a, const std::vector<std::vector<T> >& b)
+{
+    assert(a.size() == b.size());
+
+    std::vector<std::vector<T> > result(a.size());
+
+	for(int i = 0; i < a.size(); i++){
+		result[i] = a[i]+b[i];
+	}
+
+    return result;
+}
+
+template <typename T>
+std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
+{
+    assert(a.size() == b.size());
+
+    std::vector<T> result;
+    result.reserve(a.size());
+
+    std::transform(a.begin(), a.end(), b.begin(),
+                   std::back_inserter(result), std::minus<T>());
+    return result;
+}
+
+template <typename T>
+std::vector<std::vector<T> > operator-(const std::vector<std::vector<T> >& a, const std::vector<std::vector<T> >& b)
+{
+    assert(a.size() == b.size());
+	int a_size = a.size();
+
+    std::vector<std::vector<T> > result(a_size);
+
+	for(int i = 0; i < a_size; i++){
+		result[i] = a[i]-b[i];
+	}
+
+    return result;
+}
+
+template <typename T>
+std::vector<T> operator-(const std::vector<T>& a)
+{
+    int a_size = a.size();
+    std::vector<T> result(a_size);
+
+	for(int i = 0; i < a_size; i++){
+		result[i] = -a[i];
+	}
+
+    return result;
+}
+
+template <typename T>
+std::vector<std::vector<T> > operator-(const std::vector<std::vector<T> >& a)
+{
+    std::vector<std::vector<T> > result;
+	int a_size = a.size();
+
+	for(int i = 0; i < a_size; i++){
+		result.push_back(-a[i]);
+	}
+
+    return result;
+}
+
+template <typename T>
+std::vector <T> operator* (const T &c, const std::vector <T> &A)
+{
+    std::vector<T> result;
+    result.reserve(A.size());
+
+    std::transform(A.begin(), A.end(), std::back_inserter(result),
+     std::bind1st(std::multiplies<T>(), c));
+
+    return result;
+}
+
+template <typename T>
+std::vector<std::vector<T> > operator*(const T& c, const std::vector<std::vector<T> >& a)
+{
+    std::vector<std::vector<T> > result;
+	int a_size = a.size();
+
+	for(int i = 0; i < a_size; i++){
+		result.push_back(c*a[i]);
+	}
+
+    return result;
+}
 
 Network::Network(vector<int> sizes_){
 	this->num_layers = sizes_.size();
@@ -14,14 +119,10 @@ Network::Network(vector<int> sizes_){
 }
 
 void Network::biases_fill(vector<vector<double> > &b, int n_layers, vector<int> &l_sizes){
-	b.clear()
+	b.clear();
 
 	for(int i = 1; i < n_layers; i++){
-		vector<double> b_layer;
-		for(int j = 0; j < l_sizes[i]; j++){
-			b_layer.push_back(0.0);
-		}
-		b.push_back(bias_layer);
+		b.push_back(vector<double>(l_sizes[i], 0.0));
 	}
 }
 
@@ -32,42 +133,40 @@ void Network::weights_fill(vector<vector<vector<double> > > &w, int n_layers, ve
 	normal_distribution<double> distribution(0.0,1.0);
 
 	for(int i = 1; i < n_layers; i++){
-		vector<double> layers_w;
+		vector<vector<double> > layers_w;
 		for(int j = 0; j < l_sizes[i]; j++){
-			vector<vector<double> > node_w;
-			for(int k = 0; k < l_size[i-1]; k++){
-				if(random_w){
-					node_w.push_back(distribution(generator)*10);
-				}
-				else{
-					node_w.push_back(0.0);
-				}
-			}
-			layers_w.push_back(node_w)
+            if(random_w){
+    			vector<double> node_w;
+    			for(int k = 0; k < l_sizes[i-1]; k++){
+    				node_w.push_back(distribution(generator));
+    			}
+    			layers_w.push_back(node_w);
+            }
+            else{
+                layers_w.push_back(vector<double>(l_sizes[i-1], 0.0));
+            }
 		}
 		w.push_back(layers_w);
 	}
-
 }
 
-vector<double> Network::feedForward(vector<double> input){
+vector<double> Network::feedForward(vector<double> &input){
 	vector<double> a = input;
 
-	for(int i = 0; i < this->num_layers-1; i++){
-		vector<double> layer_outputs;
-		for(int j = 0; j < this->sizes[i]; j++){
-			double dot_product = inner_product(a.begin(), a.end(), this->weights[i][j].begin(), 0);
-			double node_output = sigmoid(dot_product + this->biases[i][j]);
-			layers_outputs.push_back(node_output);
-		}
+    for(int i = 1; i < this->num_layers; i++){
+    	vector<double> layer_outputs;
+        for(int j = 0; j < this->sizes[i]; j++){
+			double dot_product = inner_product(a.begin(), a.end(), this->weights[i-1][j].begin(), 0);
+            double node_output = sigmoid(dot_product + this->biases[i-1][j]);
+			layer_outputs.push_back(node_output);
+        }
 		a = layer_outputs;
-	}
+    }
 
 	return a;
 }
 
-void Network::SGD(vector<vector<double> > &x_train, vector<int> &y_train, int epochs, int mini_batch_size, double eta){
-
+void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_train, int epochs, int mini_batch_size, double eta, vector<vector<double> > &x_test, vector<vector<int> > &y_test){
 	// Se va a suponer en principio que mini_batch_size es divisor de train_size
 	// Posiblemente se modifique mas adelante
 
@@ -75,18 +174,18 @@ void Network::SGD(vector<vector<double> > &x_train, vector<int> &y_train, int ep
 	int train_size = y_train.size();
 
 	for(int i = 0; i < train_size; i++){
-		index.push_back(i)
+		index.push_back(i);
 	}
 
 	for(int i = 0; i < epochs; i++){
 		random_shuffle(index.begin(), index.end());
 
 		vector<vector<vector<double> > > x_mini_batches;
-		vector<vector<int> > y_mini_batches;
+		vector<vector<vector<int> > > y_mini_batches;
 
 		for(int j = 0; j < train_size; j += mini_batch_size){
 			vector<vector<double> > x_mini_batch;
-			vector<int> y_mini_batch;
+			vector<vector<int> > y_mini_batch;
 
 			for(int k = j; k < j+mini_batch_size; k++){
 				x_mini_batch.push_back(x_train[index[k]]);
@@ -100,15 +199,40 @@ void Network::SGD(vector<vector<double> > &x_train, vector<int> &y_train, int ep
 		int num_mini_batches = y_mini_batches.size();
 
 		for(int j = 0; j < num_mini_batches; j++){
-			update_mini_batch(x_mini_batch, y_mini_batch, eta);
+			update_mini_batch(x_mini_batches[j], y_mini_batches[j], eta);
 		}
 
-		cout << "Epoch " << i << "/" << epochs << endl;
+        /***************************************************/
+
+        int success_test = 0;
+
+        int number_of_test_images = x_test.size();
+
+        for(int i = 0; i < number_of_test_images; i++){
+            int prediction = predict(x_test[i]);
+
+            int y_test_value = 0;
+
+            for(int j = 1; j < 10; j++){
+                if(y_test[i][j] == 1){
+                    y_test_value = j;
+                    break;
+                }
+            }
+
+            if(prediction == y_test_value){
+                success_test++;
+            }
+        }
+
+        /*********************************************************/
+
+		cout << "Epoch " << i+1 << "/" << epochs << " - acc: " << 1.0*success_test/number_of_test_images << endl;
 	}
 }
 
-// SIN ACABAR
-void Network::update_mini_batch(vector<vector<double> > &x_mini_batch, vector<int> &y_mini_batch, double eta){
+
+void Network::update_mini_batch(vector<vector<double> > &x_mini_batch, vector<vector<int> > &y_mini_batch, double eta){
 	vector<vector<double> > nabla_b;
 	vector<vector<vector<double> > > nabla_w;
 
@@ -122,20 +246,25 @@ void Network::update_mini_batch(vector<vector<double> > &x_mini_batch, vector<in
 		vector<vector<vector<double> > > delta_nabla_w;
 		backprop(x_mini_batch[i], y_mini_batch[i], delta_nabla_b, delta_nabla_w);
 
+		double c = eta/mini_batch_size;
+
 		nabla_b = nabla_b + delta_nabla_b;
+		this->biases = this->biases - c*nabla_b;
 
-		for(int j = 0; j < this->num_layers; j++){
+		for(int j = 0; j < this->num_layers-1; j++){
 			nabla_w[j] = nabla_w[j] + delta_nabla_w[j];
+			this->weights[j] = this->weights[j] - c*nabla_w[j];
 		}
-
 	}
 }
 
 
-void Network::backprop(vector<double> &x, int &y, vector<vector<double> > &nabla_b, vector<vector<vector<double> > > &nabla_w){
+void Network::backprop(vector<double> &x, vector<int> &y, vector<vector<double> > &nabla_b, vector<vector<vector<double> > > &nabla_w){
+	// Inicializamos nabla_w y nabla_b
 	biases_fill(nabla_b, this->num_layers, this->sizes);
 	weights_fill(nabla_w, this->num_layers, this->sizes, false);
 
+	// Inicilizamos la activacion al vector de entrada
 	vector<double> activation = x;
 	vector<vector<double> >  activations;
 
@@ -143,13 +272,13 @@ void Network::backprop(vector<double> &x, int &y, vector<vector<double> > &nabla
 
 	vector<vector<double> > zs;
 
-	for(int i = 0; i < this->num_layers; i++){
+	for(int i = 1; i < this->num_layers; i++){
 		vector<double> z;
 		vector<double> z_sigmoid;
 
 		for(int j = 0; j < this->sizes[i]; j++){
-			double dot_product = inner_product(activation.begin(), activation.end(), this->weights[i][j].begin(), 0);
-			double out = dot_product + this->biases[i][j];
+			double dot_product = inner_product(activation.begin(), activation.end(), this->weights[i-1][j].begin(), 0);
+			double out = dot_product + this->biases[i-1][j];
 			z.push_back(out);
 			z_sigmoid.push_back(sigmoid(out));
 		}
@@ -160,60 +289,90 @@ void Network::backprop(vector<double> &x, int &y, vector<vector<double> > &nabla
 	}
 
 	int activations_size = activations.size();
+    int zs_size = zs.size();
 
+	// Obtener derivadas parciales
 	vector<double> partial_derivatives = cost_derivative(activations[activations_size-1], y);
-	vector<double> sigmoid_prime_vector = sigmoid_prime(zs[zs.size()-1]);
+	vector<double> sigmoid_prime_vector = sigmoid_prime(zs[zs_size-1]);
 
 	int delta_size = sigmoid_prime_vector.size();
-	vector<double> delta;
+	vector<double> delta(delta_size);
 
 	for(int i = 0; i < delta_size; i++){
-		delta.push_back(partial_derivatives[i]*sigmoid_prime_vector[i]);
+		delta[i] = partial_derivatives[i]*sigmoid_prime_vector[i];
 	}
 
-	nabla_b[num_layers-1] = delta;
+	nabla_b[this->num_layers-2] = delta;
 
-	for(int i = 0; i < this->sizes[num_layers-1]; i++){
-		for(int j = 0; j < this->sizes[num_layers-2]; j++){
-			nabla_w[num_layers-1][i][j] = delta[i]*activations[activations.size()-2][j];
-		}
+	for(int i = 0; i < this->sizes[this->num_layers-1]; i++){
+		nabla_w[this->num_layers-2][i] = delta[i]*activations[activations.size()-2];
 	}
 
 	for(int i = 2; i < num_layers; i++){
-		vector<double> z = zs[num_layers-i];
+		vector<double> z = zs[zs_size-i];
 		vector<double> sp = sigmoid_prime(z);
 
-		vector<double> temp_delta;
+		vector<double> temp_delta(this->sizes[num_layers-i]);
 
 		for(int j = 0; j < this->sizes[num_layers-i]; j++){
 			double dot_product = 0;
 			for(int k = 0; k < this->sizes[num_layers-i+1]; k++){
-				dot_product += delta[k]*this->weights[num_layers-i+1][k][j];
+				dot_product += delta[k]*this->weights[num_layers-i][k][j];
 			}
-			temp_delta.push_back(dot_product*sp[j]);
+			temp_delta[j] = dot_product*sp[j];
 		}
 
 		delta = temp_delta;
-		nabla_b[num_layers-i] = delta;
+		nabla_b[this->num_layers-i-1] = delta;
 
 		for(int j = 0; j < this->sizes[num_layers-i]; j++){
-			for(int k = 0; k < this->sizes[num_layers-i-1]; k++){
-				nabla_w[num_layers-i][j][k] = delta[j]*activations[num_layers-i-1][k];
-			}
+			nabla_w[this->num_layers-i-1][j] = delta[j]*activations[activations_size-i-1];
 		}
 	}
-
 }
 
-void Network::evaluate(){}
+vector<double> Network::cost_derivative(vector<double> &outputs_activations, vector<int> &y){
+	vector<double> partial_derivatives(10);
 
-
-vector<double> Network::cost_derivative(vector<double> outputs_activations, vector<int> y){
-	vector<double> partial_derivatives;
-	int y_size = y.size();
-
-	for(int i = 0; i < y_size(); y++){
-		partial_derivatives.push_back(outputs_activations[i]-y[i]);
+	for(int i = 0; i < 10; i++){
+		partial_derivatives[i] = outputs_activations[i]-y[i];
 	}
+
 	return partial_derivatives;
+}
+
+void Network::train(vector<vector<double> > &dataset, vector<int> &label, vector<vector<double> > &x_test, vector<int> &y_test){
+
+    int label_size = label.size();
+
+    vector<vector<int> > y_train_categorical(label_size);
+
+    for(int i = 0; i < label_size; i++){
+        for(int j = 0; j < 10; j++){
+            y_train_categorical[i].push_back((label[i] == j) ? 1 : 0);
+        }
+    }
+
+    int y_test_size = y_test.size();
+
+    vector<vector<int> > y_test_categorical(y_test_size);
+
+    for(int i = 0; i < y_test_size; i++){
+        for(int j = 0; j < 10; j++){
+            y_test_categorical[i].push_back((y_test[i] == j) ? 1 : 0);
+        }
+    }
+
+	SGD(dataset, y_train_categorical, 30, 10, 3.0, x_test, y_test_categorical);
+}
+
+
+int Network::predict(vector<double> &data){
+    vector<double> outputs = feedForward(data);
+    int max = 0;
+
+    for(int i = 1; i < 10; i++)
+        max = ((outputs[max] < outputs[i]) ? i : max);
+
+    return max;
 }

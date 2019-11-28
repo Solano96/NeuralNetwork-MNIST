@@ -1,4 +1,8 @@
+#include <vector>
 
-double sigmoid(double x);
+using namespace std;
 
-double sigmoid_prime(double x);
+double sigmoid(const double &x);
+vector<double> sigmoid(const vector<double> &x);
+double sigmoid_prime(const double &x);
+vector<double> sigmoid_prime(const vector<double> &x);

@@ -1,5 +1,6 @@
 #include "readMNIST.h"
 #include "perceptronSimple.h"
+#include "perceptronMultiLayer.h"
 
 int main(){
 
@@ -34,13 +35,17 @@ int main(){
     normalize_dataset(X_train);
     normalize_dataset(X_test);
 
-    MnistSimplePerceptron perceptron = MnistSimplePerceptron(image_size);
+    //MnistSimplePerceptron perceptron = MnistSimplePerceptron(image_size);
+
+    vector<int> sizes{ image_size, 32, 10 };
+
+    Network perceptron = Network(sizes);
 
     cout << "Training..." << endl;
 
 
     gettimeofday(&start, NULL);
-    perceptron.train(X_train, y_train);
+    perceptron.train(X_train, y_train, X_test, y_test);
     gettimeofday(&end, NULL);
 
     long seconds = (end.tv_sec - start.tv_sec);
