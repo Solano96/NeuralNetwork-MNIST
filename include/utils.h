@@ -1,25 +1,61 @@
 #include <vector>
 #include <algorithm>
 #include <functional>
+#include <iostream>
 #include <assert.h>
 
-template <typename T>
-std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b);
+using namespace std;
 
 template <typename T>
-std::vector<std::vector<T> > operator+(const std::vector<std::vector<T> >& a, const std::vector<std::vector<T> >& b);
+std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
+{
+    int a_size = a.size();
+    assert(a_size == b.size());
+    std::vector<T> result(a_size);
+
+	for(int i = 0; i < a_size; i++){
+		result[i] = a[i]+b[i];
+	}
+
+    return result;
+}
 
 template <typename T>
-std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b);
+std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
+{
+    int a_size = a.size();
+    assert(a_size == b.size());
+    std::vector<T> result(a_size);
+
+	for(int i = 0; i < a_size; i++){
+		result[i] = a[i]-b[i];
+	}
+
+    return result;
+}
 
 template <typename T>
-std::vector<T> operator-(const std::vector<T>& a);
+std::vector<T> operator-(const std::vector<T>& a)
+{
+    int a_size = a.size();
+    std::vector<T> result(a_size);
 
-template <typename T>
-std::vector<std::vector<T> > operator-(const std::vector<std::vector<T> >& a);
+	for(int i = 0; i < a_size; i++){
+		result[i] = -a[i];
+	}
 
-template <typename T>
-std::vector<T> operator*(const T& c, const std::vector<T>& a);
+    return result;
+}
 
-template <typename T>
-std::vector<std::vector<T> > operator*(const T& c, const std::vector<std::vector<T> >& a);
+template <typename C, typename T>
+std::vector <T> operator* (const C &c, const std::vector <T> &a)
+{
+	int a_size = a.size();
+    std::vector<T> result(a_size);
+
+	for(int i = 0; i < a_size; i++){
+        result[i] = c*a[i];
+	}
+
+    return result;
+}

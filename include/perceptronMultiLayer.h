@@ -3,8 +3,8 @@
 #include <numeric>
 #include <algorithm>
 #include <random>
-#include "utils.h"
 #include "activations.h"
+#include "utils.h"
 
 using namespace std;
 

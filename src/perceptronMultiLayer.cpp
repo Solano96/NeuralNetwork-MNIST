@@ -1,110 +1,7 @@
 #include "perceptronMultiLayer.h"
 
-template <typename T>
-std::vector<T> operator+(const std::vector<T>& a, const std::vector<T>& b)
-{
-    assert(a.size() == b.size());
-
-    std::vector<T> result;
-    result.reserve(a.size());
-
-    std::transform(a.begin(), a.end(), b.begin(),
-                   std::back_inserter(result), std::plus<T>());
-    return result;
-}
-
-template <typename T>
-std::vector<std::vector<T> > operator+(const std::vector<std::vector<T> >& a, const std::vector<std::vector<T> >& b)
-{
-    assert(a.size() == b.size());
-
-    std::vector<std::vector<T> > result(a.size());
-
-	for(int i = 0; i < a.size(); i++){
-		result[i] = a[i]+b[i];
-	}
-
-    return result;
-}
-
-template <typename T>
-std::vector<T> operator-(const std::vector<T>& a, const std::vector<T>& b)
-{
-    assert(a.size() == b.size());
-
-    std::vector<T> result;
-    result.reserve(a.size());
-
-    std::transform(a.begin(), a.end(), b.begin(),
-                   std::back_inserter(result), std::minus<T>());
-    return result;
-}
-
-template <typename T>
-std::vector<std::vector<T> > operator-(const std::vector<std::vector<T> >& a, const std::vector<std::vector<T> >& b)
-{
-    assert(a.size() == b.size());
-	int a_size = a.size();
-
-    std::vector<std::vector<T> > result(a_size);
-
-	for(int i = 0; i < a_size; i++){
-		result[i] = a[i]-b[i];
-	}
-
-    return result;
-}
-
-template <typename T>
-std::vector<T> operator-(const std::vector<T>& a)
-{
-    int a_size = a.size();
-    std::vector<T> result(a_size);
-
-	for(int i = 0; i < a_size; i++){
-		result[i] = -a[i];
-	}
-
-    return result;
-}
-
-template <typename T>
-std::vector<std::vector<T> > operator-(const std::vector<std::vector<T> >& a)
-{
-    std::vector<std::vector<T> > result;
-	int a_size = a.size();
-
-	for(int i = 0; i < a_size; i++){
-		result.push_back(-a[i]);
-	}
-
-    return result;
-}
-
-template <typename T>
-std::vector <T> operator* (const T &c, const std::vector <T> &A)
-{
-    std::vector<T> result;
-    result.reserve(A.size());
-
-    std::transform(A.begin(), A.end(), std::back_inserter(result),
-     std::bind1st(std::multiplies<T>(), c));
-
-    return result;
-}
-
-template <typename T>
-std::vector<std::vector<T> > operator*(const T& c, const std::vector<std::vector<T> >& a)
-{
-    std::vector<std::vector<T> > result;
-	int a_size = a.size();
-
-	for(int i = 0; i < a_size; i++){
-		result.push_back(c*a[i]);
-	}
-
-    return result;
-}
+#include <ctime>
+#include <sys/time.h>
 
 Network::Network(vector<int> sizes_){
 	this->num_layers = sizes_.size();
@@ -198,10 +95,21 @@ void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_trai
 
 		int num_mini_batches = y_mini_batches.size();
 
+		struct timeval start, end;
+
+		gettimeofday(&start, NULL);
+
 		for(int j = 0; j < num_mini_batches; j++){
 			update_mini_batch(x_mini_batches[j], y_mini_batches[j], eta);
 		}
 
+		gettimeofday(&end, NULL);
+
+		long seconds = (end.tv_sec - start.tv_sec);
+		long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
+
+		cout << "Time taken by program is : " << micros/1000000.0 << " sec." << endl;
+		
         /***************************************************/
 
         int success_test = 0;

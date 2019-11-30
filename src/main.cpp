@@ -1,3 +1,4 @@
+//#include "matrix.h"
 #include "readMNIST.h"
 #include "perceptronSimple.h"
 #include "perceptronMultiLayer.h"
@@ -15,11 +16,11 @@ int main(){
     int number_of_test_images = 10000;
     int image_size = 28 * 28;
 
-    struct timeval start, end;
-
     vector<vector<double> > X_train, X_test;
     vector<int> y_train(number_of_train_images, 0.0);
     vector<int> y_test(number_of_test_images, 0.0);
+
+    struct timeval start, end;
 
     cout << "Reading data..." << endl;
 
@@ -37,7 +38,7 @@ int main(){
 
     //MnistSimplePerceptron perceptron = MnistSimplePerceptron(image_size);
 
-    vector<int> sizes{ image_size, 32, 10 };
+    vector<int> sizes{ image_size, 128, 10 };
 
     Network perceptron = Network(sizes);
 
@@ -80,21 +81,7 @@ int main(){
     cout << "Test success: " << success_test << "/" << number_of_test_images;
     cout << ", " << 100.0*success_test/number_of_test_images << "%" << endl;
 
-/*
-    //read MNIST iamge into Armadillo mat vector
-    vector<arma::mat> vec;
-    read_Mnist(filename, vec);
-    cout<<vec.size()<<endl;
-    cout<<vec[0].size()<<endl;
-*/
-/*
-    //read MNIST iamge into OpenCV Mat vector
-    vector<cv::Mat> vec;
-    read_Mnist(filename, vec);
-    cout<<vec.size()<<endl;
-    imshow("1st", vec[8]);
-    waitKey();
-*/
+
 /*
     //read MNIST iamge into double vector
     vector<vector<double> > vec;
@@ -113,12 +100,5 @@ int main(){
     cout<<vec.size()<<endl;
 */
 
-/*
-    //read MNIST label into armadillo colvec
-    //if you want rowvec, just use .t()
-    arma::colvec vec = arma::zeros<arma::colvec>(number_of_images);
-    read_Mnist_Label(filename, vec);
-    cout<<vec.size()<<endl;
-*/
     return 0;
 }
