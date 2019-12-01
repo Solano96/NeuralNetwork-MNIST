@@ -3,10 +3,10 @@ INC = include
 OBJ = obj
 
 CXX = g++ -std=c++11
-CXXFLAGS =  -Wall -Wextra -g -I$(SRC) -I$(INC) -march=native
+CXXFLAGS = -fopenmp -Wall -Wextra -g -I$(SRC) -I$(INC) -march=native
 
 main: $(OBJ)/main.o $(OBJ)/readMNIST.o $(OBJ)/perceptronSimple.o $(OBJ)/perceptronMultiLayer.o
-	g++ -fopenmp -o main -O2 $(OBJ)/main.o $(OBJ)/readMNIST.o $(OBJ)/perceptronSimple.o $(OBJ)/perceptronMultiLayer.o
+	g++ -o main -O2 $(OBJ)/main.o $(OBJ)/readMNIST.o $(OBJ)/perceptronSimple.o $(OBJ)/perceptronMultiLayer.o
 
 $(OBJ)/main.o: $(SRC)/main.cpp $(INC)/readMNIST.h $(INC)/perceptronSimple.h
 	$(CXX) -c $(CXXFLAGS) -o $(OBJ)/main.o -O2 $(SRC)/main.cpp

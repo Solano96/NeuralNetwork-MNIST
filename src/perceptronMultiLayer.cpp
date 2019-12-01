@@ -1,8 +1,5 @@
 #include "perceptronMultiLayer.h"
 
-#include <ctime>
-#include <sys/time.h>
-
 Network::Network(vector<int> sizes_){
 	this->num_layers = sizes_.size();
 	this->sizes = sizes_;
@@ -35,7 +32,7 @@ void Network::weights_fill(vector<vector<vector<double> > > &w, int n_layers, ve
             if(random_w){
     			vector<double> node_w;
     			for(int k = 0; k < l_sizes[i-1]; k++){
-    				node_w.push_back(distribution(generator));
+    				node_w.push_back(distribution(generator)/sqrt(l_sizes[i-1]));
     			}
     			layers_w.push_back(node_w);
             }
@@ -51,21 +48,15 @@ vector<double> Network::feedForward(vector<double> &input){
 	vector<double> a = input;
 
     for(int i = 1; i < this->num_layers; i++){
-    	vector<double> layer_outputs;
-        for(int j = 0; j < this->sizes[i]; j++){
-			double dot_product = inner_product(a.begin(), a.end(), this->weights[i-1][j].begin(), 0);
-            double node_output = sigmoid(dot_product + this->biases[i-1][j]);
-			layer_outputs.push_back(node_output);
-        }
-		a = layer_outputs;
+    	vector<double> z = matrix_multiplication(this->weights[i-1], a) + this->biases[i-1];
+		a = (i == this->num_layers-1) ? softmax(z) : sigmoid(z);
     }
 
 	return a;
 }
 
-void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_train, int epochs, int mini_batch_size, double eta, vector<vector<double> > &x_test, vector<vector<int> > &y_test){
-	// Se va a suponer en principio que mini_batch_size es divisor de train_size
-	// Posiblemente se modifique mas adelante
+void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_train, vector<vector<double> > &x_test,
+	vector<vector<int> > &y_test, int epochs, int mini_batch_size, double eta){
 
 	vector<int> index;
 	int train_size = y_train.size();
@@ -108,13 +99,28 @@ void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_trai
 		long seconds = (end.tv_sec - start.tv_sec);
 		long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
 
-		cout << "Time taken by program is : " << micros/1000000.0 << " sec." << endl;
-		
-        /***************************************************/
-
-        int success_test = 0;
-
         int number_of_test_images = x_test.size();
+
+		/*****************************************************/
+
+		double cost_function = 0.0;
+
+		for(int i = 0; i < number_of_test_images; i++){
+			vector<double> y_pred = feedForward(x_test[i]);
+			double sum = 0.0;
+
+			for(int j = 0; j < 10; j++){
+				sum += y_test[i][j]*log(y_pred[j]);
+			}
+
+			cost_function += sum;
+		}
+
+		cost_function /= -number_of_test_images;
+
+        /*****************************************************/
+
+		int success_test = 0;
 
         for(int i = 0; i < number_of_test_images; i++){
             int prediction = predict(x_test[i]);
@@ -135,7 +141,10 @@ void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_trai
 
         /*********************************************************/
 
-		cout << "Epoch " << i+1 << "/" << epochs << " - acc: " << 1.0*success_test/number_of_test_images << endl;
+		cout << "Epoch " << i+1 << "/" << epochs << endl;
+		cout << " - " << micros/1000000 << "s";
+		cout << " - loss: " << cost_function;
+		cout << " - acc: " << 1.0*success_test/number_of_test_images << endl;
 	}
 }
 
@@ -152,20 +161,25 @@ void Network::update_mini_batch(vector<vector<double> > &x_mini_batch, vector<ve
 	for(int i = 0; i < mini_batch_size; i++){
 		vector<vector<double> > delta_nabla_b;
 		vector<vector<vector<double> > > delta_nabla_w;
+
 		backprop(x_mini_batch[i], y_mini_batch[i], delta_nabla_b, delta_nabla_w);
 
-		double c = eta/mini_batch_size;
-
 		nabla_b = nabla_b + delta_nabla_b;
-		this->biases = this->biases - c*nabla_b;
 
 		for(int j = 0; j < this->num_layers-1; j++){
 			nabla_w[j] = nabla_w[j] + delta_nabla_w[j];
-			this->weights[j] = this->weights[j] - c*nabla_w[j];
 		}
 	}
-}
 
+	double c = 1.0*eta/mini_batch_size;
+
+	this->biases = this->biases - c*nabla_b;
+
+	for(int j = 0; j < this->num_layers-1; j++){
+		this->weights[j] = this->weights[j] - c*nabla_w[j];
+	}
+
+}
 
 void Network::backprop(vector<double> &x, vector<int> &y, vector<vector<double> > &nabla_b, vector<vector<vector<double> > > &nabla_w){
 	// Inicializamos nabla_w y nabla_b
@@ -181,18 +195,9 @@ void Network::backprop(vector<double> &x, vector<int> &y, vector<vector<double> 
 	vector<vector<double> > zs;
 
 	for(int i = 1; i < this->num_layers; i++){
-		vector<double> z;
-		vector<double> z_sigmoid;
-
-		for(int j = 0; j < this->sizes[i]; j++){
-			double dot_product = inner_product(activation.begin(), activation.end(), this->weights[i-1][j].begin(), 0);
-			double out = dot_product + this->biases[i-1][j];
-			z.push_back(out);
-			z_sigmoid.push_back(sigmoid(out));
-		}
-
+		vector<double> z = matrix_multiplication(this->weights[i-1], activation) + this->biases[i-1];
 		zs.push_back(z);
-		activation = z_sigmoid;
+		activation = (i == this->num_layers-1) ? softmax(z) : sigmoid(z);
 		activations.push_back(activation);
 	}
 
@@ -201,36 +206,21 @@ void Network::backprop(vector<double> &x, vector<int> &y, vector<vector<double> 
 
 	// Obtener derivadas parciales
 	vector<double> partial_derivatives = cost_derivative(activations[activations_size-1], y);
-	vector<double> sigmoid_prime_vector = sigmoid_prime(zs[zs_size-1]);
-
-	int delta_size = sigmoid_prime_vector.size();
-	vector<double> delta(delta_size);
-
-	for(int i = 0; i < delta_size; i++){
-		delta[i] = partial_derivatives[i]*sigmoid_prime_vector[i];
-	}
+	vector<double> delta = partial_derivatives;
 
 	nabla_b[this->num_layers-2] = delta;
 
 	for(int i = 0; i < this->sizes[this->num_layers-1]; i++){
-		nabla_w[this->num_layers-2][i] = delta[i]*activations[activations.size()-2];
+		nabla_w[this->num_layers-2][i] = delta[i]*activations[activations_size-2];
 	}
 
 	for(int i = 2; i < num_layers; i++){
+		vector<double> dA = matrix_multiplication(transpose(this->weights[this->num_layers-i]), delta);
 		vector<double> z = zs[zs_size-i];
 		vector<double> sp = sigmoid_prime(z);
 
-		vector<double> temp_delta(this->sizes[num_layers-i]);
+		delta = dA * sp;
 
-		for(int j = 0; j < this->sizes[num_layers-i]; j++){
-			double dot_product = 0;
-			for(int k = 0; k < this->sizes[num_layers-i+1]; k++){
-				dot_product += delta[k]*this->weights[num_layers-i][k][j];
-			}
-			temp_delta[j] = dot_product*sp[j];
-		}
-
-		delta = temp_delta;
 		nabla_b[this->num_layers-i-1] = delta;
 
 		for(int j = 0; j < this->sizes[num_layers-i]; j++){
@@ -238,6 +228,7 @@ void Network::backprop(vector<double> &x, vector<int> &y, vector<vector<double> 
 		}
 	}
 }
+
 
 vector<double> Network::cost_derivative(vector<double> &outputs_activations, vector<int> &y){
 	vector<double> partial_derivatives(10);
@@ -249,7 +240,8 @@ vector<double> Network::cost_derivative(vector<double> &outputs_activations, vec
 	return partial_derivatives;
 }
 
-void Network::train(vector<vector<double> > &dataset, vector<int> &label, vector<vector<double> > &x_test, vector<int> &y_test){
+void Network::train(vector<vector<double> > &dataset, vector<int> &label, vector<vector<double> > &x_test, vector<int> &y_test,
+	int epochs, int mini_batch_size, double eta){
 
     int label_size = label.size();
 
@@ -271,7 +263,7 @@ void Network::train(vector<vector<double> > &dataset, vector<int> &label, vector
         }
     }
 
-	SGD(dataset, y_train_categorical, 30, 10, 3.0, x_test, y_test_categorical);
+	SGD(dataset, y_train_categorical, x_test, y_test_categorical, epochs, mini_batch_size, eta);
 }
 
 

@@ -64,7 +64,7 @@ MnistSimplePerceptron::MnistSimplePerceptron(int input_size_){
 void MnistSimplePerceptron::train(vector<vector<double> > &dataset, vector<int> &label){
     int dataset_size = dataset.size();
 
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(int i = 0; i < 10; i++){
         vector<int> label_i;
 

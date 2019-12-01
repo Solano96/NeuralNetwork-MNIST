@@ -64,14 +64,13 @@ void read_Mnist_Label(string filename, vector<int> &vec)
     {
         int magic_number = 0;
         int number_of_images = 0;
-        int n_rows = 0;
-        int n_cols = 0;
+
         file.read((char*) &magic_number, sizeof(magic_number));
         magic_number = ReverseInt(magic_number);
         file.read((char*) &number_of_images,sizeof(number_of_images));
         number_of_images = ReverseInt(number_of_images);
-        for(int i = 0; i < number_of_images; ++i)
-        {
+
+        for(int i = 0; i < number_of_images; ++i){
             unsigned char temp = 0;
             file.read((char*) &temp, sizeof(temp));
             vec[i]= (int)temp;
@@ -80,8 +79,13 @@ void read_Mnist_Label(string filename, vector<int> &vec)
 }
 
 void normalize_dataset(vector<vector<double> > &dataset){
-    for(int i = 0; i < dataset.size(); i++){
-        for(int j = 0; j < dataset[i].size(); j++){
+
+    unsigned int dataset_size = dataset.size();
+
+    for(unsigned int i = 0; i < dataset_size; i++){
+        unsigned int dataset_i_size = dataset[i].size();
+
+        for(unsigned int j = 0; j < dataset_i_size; j++){
             dataset[i][j] /= 255.0;
         }
     }

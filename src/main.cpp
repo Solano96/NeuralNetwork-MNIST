@@ -1,9 +1,9 @@
-//#include "matrix.h"
+#include <stdlib.h>
 #include "readMNIST.h"
 #include "perceptronSimple.h"
 #include "perceptronMultiLayer.h"
 
-int main(){
+int main(int argc, char** argv){
 
     // Dataset filenames
     string X_train_file = "mnist/train-images-idx3-ubyte";
@@ -38,7 +38,19 @@ int main(){
 
     //MnistSimplePerceptron perceptron = MnistSimplePerceptron(image_size);
 
-    vector<int> sizes{ image_size, 128, 10 };
+    int hidden_layers = atoi(argv[1]);
+    vector<int> sizes(2+hidden_layers);
+
+    sizes[0] = image_size;
+    sizes[hidden_layers+1] = 10;
+
+    for(int i = 0; i < hidden_layers; i++){
+        sizes[i+1] = atoi(argv[i+2]);
+    }
+
+    int epochs = atoi(argv[hidden_layers+2]);
+    int mini_batch_size = atoi(argv[hidden_layers+3]);
+    int eta = atof(argv[hidden_layers+4]);
 
     Network perceptron = Network(sizes);
 
@@ -46,7 +58,7 @@ int main(){
 
 
     gettimeofday(&start, NULL);
-    perceptron.train(X_train, y_train, X_test, y_test);
+    perceptron.train(X_train, y_train, X_test, y_test, epochs, mini_batch_size, eta);
     gettimeofday(&end, NULL);
 
     long seconds = (end.tv_sec - start.tv_sec);
@@ -80,25 +92,6 @@ int main(){
 
     cout << "Test success: " << success_test << "/" << number_of_test_images;
     cout << ", " << 100.0*success_test/number_of_test_images << "%" << endl;
-
-
-/*
-    //read MNIST iamge into double vector
-    vector<vector<double> > vec;
-    read_Mnist(filename, vec);
-    cout<<vec.size()<<endl;
-    cout<<vec[0].size()<<endl;
-*/
-
-//    string filename = "mnist/t10k-labels-idx1-ubyte";
-//    int number_of_images = 10000;
-
-/*
-    //read MNIST label into double vector
-    vector<double> vec(number_of_images);
-    read_Mnist_Label(filename, vec);
-    cout<<vec.size()<<endl;
-*/
 
     return 0;
 }
