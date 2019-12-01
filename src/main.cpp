@@ -65,33 +65,8 @@ int main(int argc, char** argv){
 	long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
 
     cout << "Time taken by program is : " << micros/1000000.0 << " sec." << endl;
-
-    int success_train = 0;
-
-    for(int i = 0; i < number_of_train_images; i++){
-        int prediction = perceptron.predict(X_train[i]);
-
-        if(prediction == y_train[i]){
-            success_train++;
-        }
-    }
-
-    cout << "Train success: " << success_train << "/" << number_of_train_images;
-    cout << ", " << 100.0*success_train/number_of_train_images << "%" << endl;
-
-
-    int success_test = 0;
-
-    for(int i = 0; i < number_of_test_images; i++){
-        int prediction = perceptron.predict(X_test[i]);
-
-        if(prediction == y_test[i]){
-            success_test++;
-        }
-    }
-
-    cout << "Test success: " << success_test << "/" << number_of_test_images;
-    cout << ", " << 100.0*success_test/number_of_test_images << "%" << endl;
+    cout << "Train accuracy: " << 100.0*perceptron.get_accuracy(X_train, y_train) << "%" << endl;
+    cout << "Test accuracy: " << 100.0*perceptron.get_accuracy(X_test, y_test) << "%" << endl;
 
     return 0;
 }

@@ -55,6 +55,21 @@ vector<double> Network::feedForward(vector<double> &input){
 	return a;
 }
 
+double Network::loss_function(vector<vector<double> > &x, vector<vector<int> > &y){
+		double loss = 0.0;
+		int x_size = x.size();
+
+		for(int i = 0; i < x_size; i++){
+			vector<double> y_pred = feedForward(x[i]);
+
+			for(int j = 0; j < 10; j++){
+				loss += y[i][j]*log(y_pred[j]);
+			}
+		}
+
+		return loss/-x_size;
+}
+
 void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_train, vector<vector<double> > &x_test,
 	vector<vector<int> > &y_test, int epochs, int mini_batch_size, double eta){
 
@@ -101,50 +116,16 @@ void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_trai
 
         int number_of_test_images = x_test.size();
 
-		/*****************************************************/
+		double train_loss = loss_function(x_train, y_train);
+		double test_loss = loss_function(x_test, y_test);
 
-		double cost_function = 0.0;
-
-		for(int i = 0; i < number_of_test_images; i++){
-			vector<double> y_pred = feedForward(x_test[i]);
-			double sum = 0.0;
-
-			for(int j = 0; j < 10; j++){
-				sum += y_test[i][j]*log(y_pred[j]);
-			}
-
-			cost_function += sum;
-		}
-
-		cost_function /= -number_of_test_images;
-
-        /*****************************************************/
-
-		int success_test = 0;
-
-        for(int i = 0; i < number_of_test_images; i++){
-            int prediction = predict(x_test[i]);
-
-            int y_test_value = 0;
-
-            for(int j = 1; j < 10; j++){
-                if(y_test[i][j] == 1){
-                    y_test_value = j;
-                    break;
-                }
-            }
-
-            if(prediction == y_test_value){
-                success_test++;
-            }
-        }
-
-        /*********************************************************/
+		double train_accuracy = get_accuracy(x_train, y_train);
+		double test_accuracy = get_accuracy(x_test, y_test);
 
 		cout << "Epoch " << i+1 << "/" << epochs << endl;
 		cout << " - " << micros/1000000 << "s";
-		cout << " - loss: " << cost_function;
-		cout << " - acc: " << 1.0*success_test/number_of_test_images << endl;
+		cout << " - loss: " << train_loss << " - acc: " << train_accuracy;
+		cout << " - val_loss: " << test_loss << " - val_acc: " << test_accuracy << endl;
 	}
 }
 
@@ -275,4 +256,41 @@ int Network::predict(vector<double> &data){
         max = ((outputs[max] < outputs[i]) ? i : max);
 
     return max;
+}
+
+double Network::get_accuracy(vector<vector<double> > &x, vector<vector<int> > &y){
+	int num_success = 0;
+	int x_size = x.size();
+
+	for(int i = 0; i < x_size; i++){
+		int prediction = predict(x[i]);
+		int y_value = 0;
+
+		for(int j = 1; j < 10; j++){
+			if(y[i][j] == 1){
+				y_value = j;
+			}
+		}
+
+		if(prediction == y_value){
+			num_success++;
+		}
+	}
+
+	return 1.0*num_success/x_size;
+}
+
+double Network::get_accuracy(vector<vector<double> > &x, vector<int> &y){
+	int num_success = 0;
+	int x_size = x.size();
+
+	for(int i = 0; i < x_size; i++){
+		int prediction = predict(x[i]);
+
+		if(prediction == y[i]){
+			num_success++;
+		}
+	}
+
+	return 1.0*num_success/x_size;
 }

@@ -25,9 +25,12 @@ private:
 	void update_mini_batch(vector<vector<double> > &x_mini_batch, vector<vector<int> > &y_mini_batch, double eta);
 	void backprop(vector<double> &x, vector<int> &y, vector<vector<double> > &nabla_b, vector<vector<vector<double> > > &nabla_w);
 	vector<double> cost_derivative(vector<double> &outputs_activations, vector<int> &y);
+	double loss_function(vector<vector<double> > &x, vector<vector<int> > &y);
 
 public:
 	Network(vector<int> sizes);
 	void train(vector<vector<double> > &dataset, vector<int> &label, vector<vector<double> > &x_test, vector<int> &y_test, int epochs, int mini_batch_size, double eta);
 	int predict(vector<double> &data);
+	double get_accuracy(vector<vector<double> > &x, vector<vector<int> > &y);
+	double get_accuracy(vector<vector<double> > &x, vector<int> &y);
 };
