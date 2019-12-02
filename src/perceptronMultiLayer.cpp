@@ -120,6 +120,7 @@ void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_trai
 		double train_accuracy = get_accuracy(x_train, y_train);
 		double test_accuracy = get_accuracy(x_test, y_test);
 
+		cout << setprecision(2) << fixed;
 		cout << "Epoch " << i+1 << "/" << epochs << endl;
 		cout << " - " << micros/1000000 << "s";
 		cout << " - loss: " << train_loss << " - acc: " << train_accuracy;
