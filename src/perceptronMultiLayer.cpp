@@ -114,8 +114,6 @@ void Network::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_trai
 		long seconds = (end.tv_sec - start.tv_sec);
 		long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
 
-        int number_of_test_images = x_test.size();
-
 		double train_loss = loss_function(x_train, y_train);
 		double test_loss = loss_function(x_test, y_test);
 

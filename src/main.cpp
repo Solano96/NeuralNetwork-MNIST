@@ -50,7 +50,7 @@ int main(int argc, char** argv){
 
     int epochs = atoi(argv[hidden_layers+2]);
     int mini_batch_size = atoi(argv[hidden_layers+3]);
-    int eta = atof(argv[hidden_layers+4]);
+    double eta = atof(argv[hidden_layers+4]);
 
     Network perceptron = Network(sizes);
 
