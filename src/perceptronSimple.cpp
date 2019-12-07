@@ -1,10 +1,8 @@
 #include "perceptronSimple.h"
 
 
-SimplePerceptron::SimplePerceptron(int input_size_, int epochs_, double learning_rate_){
+SimplePerceptron::SimplePerceptron(int input_size_){
     input_size = input_size_;
-    epochs = epochs_;
-    learning_rate = learning_rate_;
     bias = 0;
 
     default_random_engine generator;
@@ -15,7 +13,7 @@ SimplePerceptron::SimplePerceptron(int input_size_, int epochs_, double learning
     }
 }
 
-void SimplePerceptron::train(vector<vector<double> > &dataset, vector<int> &labels){
+void SimplePerceptron::train(vector<vector<double> > &dataset, vector<int> &labels, int epochs, double learning_rate){
     bool convergence = false;
     int dataset_size = dataset.size();
     vector<int> index;
@@ -61,10 +59,10 @@ MnistSimplePerceptron::MnistSimplePerceptron(int input_size_){
     }
 }
 
-void MnistSimplePerceptron::train(vector<vector<double> > &dataset, vector<int> &label){
+void MnistSimplePerceptron::train(vector<vector<double> > &dataset, vector<int> &label, int epochs, double learning_rate){
     int dataset_size = dataset.size();
 
-    //#pragma omp parallel for
+    #pragma omp parallel for
     for(int i = 0; i < 10; i++){
         vector<int> label_i;
 
@@ -72,7 +70,7 @@ void MnistSimplePerceptron::train(vector<vector<double> > &dataset, vector<int> 
             label_i.push_back( (label[j] != i) ? 0 : 1);
         }
 
-        neurons[i].train(dataset, label_i);
+        neurons[i].train(dataset, label_i, epochs, learning_rate);
     }
 }
 
@@ -87,4 +85,19 @@ int MnistSimplePerceptron::predict(vector<double> &data){
         max = ((outputs[max] < outputs[i]) ? i : max);
 
     return max;
+}
+
+double MnistSimplePerceptron::get_accuracy(vector<vector<double> > &x, vector<int> &y){
+	int num_success = 0;
+	int x_size = x.size();
+
+	for(int i = 0; i < x_size; i++){
+		int prediction = predict(x[i]);
+
+		if(prediction == y[i]){
+			num_success++;
+		}
+	}
+
+	return 1.0*num_success/x_size;
 }

@@ -104,8 +104,8 @@ std::vector<T> matrix_multiplication(const std::vector<std::vector<T> > &a, cons
 
     std::vector<T> result(a_rows, 0.0);
 
-    for(int i = 0; i < a_rows; i++){
-        for(int k = 0; k < a_cols; k++){
+    for(unsigned int i = 0; i < a_rows; i++){
+        for(unsigned int k = 0; k < a_cols; k++){
             result[i] += a[i][k]*b[k];
         }
     }
@@ -121,8 +121,8 @@ std::vector<std::vector<T> > transpose(const std::vector<std::vector<T> > &a){
 
     std::vector<std::vector<T> > result(a_cols, std::vector<T>(a_rows));
 
-    for(int i = 0; i < a_rows; i++){
-        for(int j = 0; j < a_cols; j++){
+    for(unsigned int i = 0; i < a_rows; i++){
+        for(unsigned int j = 0; j < a_cols; j++){
             result[j][i] = a[i][j];
         }
     }

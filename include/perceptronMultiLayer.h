@@ -1,3 +1,6 @@
+#ifndef _PERCEPTRONMULTILAYER_H_
+#define _PERCEPTRONMULTILAYER_H_
+
 #include <iostream>
 #include <vector>
 #include <numeric>
@@ -7,11 +10,10 @@
 #include <ctime>
 #include <sys/time.h>
 #include "activations.h"
-#include "utils.h"
 
 using namespace std;
 
-class Network{
+class MLP{
 private:
 	double num_layers;
 	vector<int> sizes;
@@ -28,9 +30,11 @@ private:
 	double loss_function(vector<vector<double> > &x, vector<vector<int> > &y);
 
 public:
-	Network(vector<int> sizes);
+	MLP(vector<int> sizes);
 	void train(vector<vector<double> > &dataset, vector<int> &label, vector<vector<double> > &x_test, vector<int> &y_test, int epochs, int mini_batch_size, double eta);
 	int predict(vector<double> &data);
 	double get_accuracy(vector<vector<double> > &x, vector<vector<int> > &y);
 	double get_accuracy(vector<vector<double> > &x, vector<int> &y);
 };
+
+#endif
