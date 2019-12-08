@@ -1,0 +1,19 @@
+Epoch 1/30
+ - 17s - loss: 0.293679 - acc: 0.927567 - val_loss: 0.289375 - val_acc: 0.9282
+Epoch 2/30
+ - 16s - loss: 0.239088 - acc: 0.9424 - val_loss: 0.249001 - val_acc: 0.9406
+Epoch 3/30
+ - 17s - loss: 0.207269 - acc: 0.95185 - val_loss: 0.222377 - val_acc: 0.9466
+Epoch 4/30
+ - 16s - loss: 0.177723 - acc: 0.9579 - val_loss: 0.197435 - val_acc: 0.9513
+Epoch 5/30
+ - 16s - loss: 0.167894 - acc: 0.960567 - val_loss: 0.193621 - val_acc: 0.9511
+Epoch 6/30
+ - 16s - loss: 0.154357 - acc: 0.964483 - val_loss: 0.183069 - val_acc: 0.9555
+Epoch 7/30
+ - 16s - loss: 0.142981 - acc: 0.964567 - val_loss: 0.174951 - val_acc: 0.9549
+Epoch 8/30
+ - 17s - loss: 0.135745 - acc: 0.9675 - val_loss: 0.168733 - val_acc: 0.9595
+Epoch 9/30
+ - 16s - loss: 0.132724 - acc: 0.9698 - val_loss: 0.174706 - val_acc: 0.9582
+Epoch 10/30

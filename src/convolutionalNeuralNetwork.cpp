@@ -99,6 +99,17 @@ double CNN::loss_function(vector<vector<double> > &x, vector<vector<int> > &y){
 void CNN::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_train, vector<vector<double> > &x_test,
 	vector<vector<int> > &y_test, int epochs, int mini_batch_size, double eta){
 
+	string filename = string("resultados/cnn_");
+
+	for(int i = 1; i < this->num_layers-1; i++){
+		filename += to_string(this->sizes[i]) + string("_");
+	}
+
+	filename += to_string(epochs) + string("_") + to_string(mini_batch_size) + string(".txt");
+
+	ofstream outfile (filename);
+
+
 	vector<int> index;
 	int train_size = y_train.size();
 
@@ -140,6 +151,7 @@ void CNN::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_train, v
 		long seconds = (end.tv_sec - start.tv_sec);
 		long micros = ((seconds * 1000000) + end.tv_usec) - (start.tv_usec);
 
+		outfile << "Epoch " << i+1 << "/" << epochs << endl;
 		cout << "Epoch " << i+1 << "/" << epochs << endl;
 
 		double train_loss = loss_function(x_train, y_train);
@@ -149,10 +161,27 @@ void CNN::SGD(vector<vector<double> > &x_train, vector<vector<int> > &y_train, v
 		double test_accuracy = get_accuracy(x_test, y_test);
 
 		//cout << setprecision(2) << fixed;
+		outfile << " - " << micros/1000000 << "s";
+		outfile << " - loss: " << train_loss << " - acc: " << train_accuracy;
+		outfile << " - val_loss: " << test_loss << " - val_acc: " << test_accuracy << endl;
+
 		cout << " - " << micros/1000000 << "s";
 		cout << " - loss: " << train_loss << " - acc: " << train_accuracy;
 		cout << " - val_loss: " << test_loss << " - val_acc: " << test_accuracy << endl;
+
 	}
+
+
+	outfile << endl << endl;
+
+	for(int i = 0; i < x_test.size(); i++){
+		outfile << predict(x_test[i]);
+	}
+
+	outfile << endl << endl;
+
+	outfile.close();
+
 }
 
 
